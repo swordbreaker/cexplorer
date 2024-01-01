@@ -1,7 +1,9 @@
-﻿using console_explorer.Commands;
+﻿using console_explorer;
+using console_explorer.Commands;
 using console_explorer.Services;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
+using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 
 public partial class Explorer : IExplorer
@@ -19,6 +21,7 @@ public partial class Explorer : IExplorer
     private bool isDisposed = false;
     private int index = 0;
     private string filter = string.Empty;
+    public SortOrder SortOrder { get; set; } = SortOrder.Default;
 
     public string Filter
     {
@@ -209,6 +212,7 @@ public partial class Explorer : IExplorer
         try
         {
             var items = Items
+                .Order(new SortOderComparer(SortOrder))
                 .Prepend(WorkingDirectory)
                 .ToList();
 
@@ -223,11 +227,11 @@ public partial class Explorer : IExplorer
                 preview.Show(SelectedItem);
             }
 
-            itemsRenderer.RenderItems(items, index);
+            itemsRenderer.RenderItems(items, index, $"Sorted by {SortOrder}");
         }
         catch (Exception e)
         {
-            explorerUi.UpdateLeft(new Markup($"[red]Error: {e.Message.EscapeMarkup()}[/]"));
+            explorerUi.UpdateLeft(new Markup($"[red]Error: {e.Message.EscapeMarkup()}[/]"), "Error");
         }
     }
 

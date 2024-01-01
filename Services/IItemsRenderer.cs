@@ -2,6 +2,6 @@
 {
     public interface IItemsRenderer
     {
-        void RenderItems(IEnumerable<FileSystemInfo> items, int selectedIndex);
+        void RenderItems(IEnumerable<FileSystemInfo> items, int selectedIndex, string title);
     }
 }

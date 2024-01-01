@@ -1,4 +1,6 @@
-﻿public interface IExplorer : IDisposable
+﻿using console_explorer;
+
+public interface IExplorer : IDisposable
 {
     DirectoryInfo WorkingDirectory { get; }
     FileSystemInfo SelectedItem { get; }
@@ -7,6 +9,7 @@
     string Filter { get; set; }
     IEnumerable<FileSystemInfo> Items { get; }
     IEnumerable<FileSystemInfo> AllItems { get; }
+    SortOrder SortOrder { get; set; }
 
     void EnterDirectory(DirectoryInfo directory);
     void ExecuteSelectedItem();

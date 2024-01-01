@@ -14,7 +14,7 @@ namespace console_explorer.Services
             this.maxItems = maxItems;
         }
 
-        public override void RenderItems(IEnumerable<FileSystemInfo> items, int selectedIndex)
+        public override void RenderItems(IEnumerable<FileSystemInfo> items, int selectedIndex, string title)
         {
             var grid = new Grid();
             grid.AddColumn();
@@ -64,7 +64,7 @@ namespace console_explorer.Services
                 ++i;
             }
 
-            explorerUi.UpdateLeft(grid);
+            explorerUi.UpdateLeft(grid, title);
         }
     }
 }

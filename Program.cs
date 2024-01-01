@@ -33,6 +33,7 @@ builder.Services.AddTransient<CalculateSizeCommand>();
 builder.Services.AddTransient<StartFilterItemsCommand>();
 builder.Services.AddTransient<ToggleRendererCommand>();
 builder.Services.AddTransient<TogglePreviewPanelSizeCommand>();
+builder.Services.AddTransient<ToggleSortOrderCommand>();
 
 using IHost host = builder.Build();
 

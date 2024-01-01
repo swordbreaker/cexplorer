@@ -4,6 +4,21 @@ using Clowd.Clipboard;
 
 public class ClipboadService : ICliboardService
 {
+    private FileSystemInfo? cutItem;
+
+    public async Task RegisterForCut(FileSystemInfo selectedItem)
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            // TODO Handle other platforms
+            return;
+        }
+
+        cutItem = selectedItem;
+        using var handle = await ClipboardGdi.OpenAsync();
+        handle.SetText(selectedItem.FullName);
+    }
+
     public async Task PasteAsync(DirectoryInfo workingDirectory)
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -13,6 +28,7 @@ public class ClipboadService : ICliboardService
         }
 
         using var handle = await ClipboardGdi.OpenAsync();
+
         if (handle.ContainsImage())
         {
             var image = handle.GetImage();
@@ -26,6 +42,14 @@ public class ClipboadService : ICliboardService
         else if (handle.ContainsText())
         {
             var text = handle.GetText();
+
+            if(text == cutItem?.FullName)
+            {
+                // todo move command
+                cutItem = null;
+                return;
+            }
+
             var path = Path.Combine(workingDirectory.FullName, "text.txt");
             File.WriteAllText(path, text);
         }

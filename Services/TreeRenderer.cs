@@ -13,7 +13,7 @@ namespace console_explorer.Services
             this.maxItems = maxItems;
         }
 
-        public override void RenderItems(IEnumerable<FileSystemInfo> items, int selectedIndex)
+        public override void RenderItems(IEnumerable<FileSystemInfo> items, int selectedIndex, string title)
         {
             var i = 0;
 
@@ -33,11 +33,11 @@ namespace console_explorer.Services
                 }
 
                 var postfix = item is DirectoryInfo ? Path.DirectorySeparatorChar.ToString() : string.Empty;
-                var name = new Markup($"[white{BgColor(i, selectedIndex)}]{item.Name}{postfix}[/]");
+                var name = new Markup($"[white{BgColor(i, selectedIndex)}]{item.Name.EscapeMarkup()}{postfix}[/]");
                 tree.AddNode(name);
             }
 
-            explorerUi.UpdateLeft(tree);
+            explorerUi.UpdateLeft(tree, title);
         }
     }
 }

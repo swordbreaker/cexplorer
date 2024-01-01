@@ -50,6 +50,10 @@ namespace console_explorer.Commands
                         explorerUi.UpdateStatus(new Markup($"[green bold]Size: {result.ToDisplayString()}[/]"));
                     });
                 }
+                else if(explorer.SelectedItem is FileInfo f)
+                {
+                    explorerUi.UpdateStatus(new Markup($"[green bold]Size: {new Bytes(f.Length).ToDisplayString()}[/]"));
+                }
             }
             catch(Exception e)
             {

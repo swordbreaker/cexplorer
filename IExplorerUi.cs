@@ -10,7 +10,7 @@ public interface IExplorerUi : IDisposable
     void MarkAsDirty();
     Task Render();
     Task StopAsync();
-    void UpdateLeft(IRenderable content);
+    void UpdateLeft(IRenderable content, string title);
     void UpdateRight(IRenderable renderable, string title);
     void UpdateRightRatio(int ratio);
     void UpdateStatus(IRenderable renderable);

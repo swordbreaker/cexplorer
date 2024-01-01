@@ -53,6 +53,11 @@ public class CommandManager : ICommandManager
             ['/'] = commandFactory.Create<StartFilterItemsCommand>,
             ['+'] = commandFactory.Create<TogglePreviewPanelSizeCommand>,
             ['?'] = commandFactory.Create<HelpCommand>,
+            ['v'] = commandFactory.Create<ClipboardPasteCommand>,
+            ['c'] = commandFactory.Create<ClipboardCopyCommand>,
+            ['s'] = commandFactory.Create<ToggleSortOrderCommand>,
+            // TODO Move command
+            // TODO Cut command
         };
     }
 

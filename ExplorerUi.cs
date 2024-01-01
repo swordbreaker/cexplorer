@@ -108,10 +108,12 @@ public class ExplorerUi : IExplorerUi
         return layout;
     }
 
-    public void UpdateLeft(IRenderable content)
+    public void UpdateLeft(IRenderable content, string title)
     {
         var panel = new Panel(content)
             .Expand();
+        panel.Header = new PanelHeader(title.EscapeMarkup());
+
         renderQueue.Enqueue(layout =>
         {
             layout["Left"].Update(panel);
