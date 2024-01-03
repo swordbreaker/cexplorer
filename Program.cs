@@ -13,6 +13,7 @@ builder.Services.AddSingleton<ICommandManager, CommandManager>();
 builder.Services.AddSingleton<IRenameService, RenameService>();
 builder.Services.AddSingleton<ICommandFactory, CommandFactory>();
 builder.Services.AddSingleton<IDeletionService, DeletionService>();
+builder.Services.AddSingleton<IMoveCommandFactory, MoveCommandFactory>();
 
 // Commands
 builder.Services.AddTransient<StartRenameCommand>();
@@ -34,6 +35,7 @@ builder.Services.AddTransient<StartFilterItemsCommand>();
 builder.Services.AddTransient<ToggleRendererCommand>();
 builder.Services.AddTransient<TogglePreviewPanelSizeCommand>();
 builder.Services.AddTransient<ToggleSortOrderCommand>();
+builder.Services.AddTransient<MoveCommand>();
 
 using IHost host = builder.Build();
 

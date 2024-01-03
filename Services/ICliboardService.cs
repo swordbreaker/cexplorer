@@ -1,5 +1,6 @@
 ﻿public interface ICliboardService
 {
     Task CopyAsync(FileSystemInfo selectedItem);
-    Task PasteAsync(DirectoryInfo workingDirectory);
+    Task<(string[] PastedItems, string[] CuttedForm)> PasteAsync(DirectoryInfo workingDirectory);
+    Task RegisterForCut(FileSystemInfo selectedItem);
 }
