@@ -56,6 +56,7 @@ public class CommandManager : ICommandManager
             ['v'] = commandFactory.Create<ClipboardPasteCommand>,
             ['c'] = commandFactory.Create<ClipboardCopyCommand>,
             ['s'] = commandFactory.Create<ToggleSortOrderCommand>,
+            ['e'] = commandFactory.Create<OpenExplorerCommand>,
             // TODO Move command
             // TODO Cut command
         };

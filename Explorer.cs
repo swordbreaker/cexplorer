@@ -3,7 +3,6 @@ using console_explorer.Commands;
 using console_explorer.Services;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
-using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 
 public partial class Explorer : IExplorer
@@ -101,8 +100,8 @@ public partial class Explorer : IExplorer
 
         SelectedItem = WorkingDirectory;
 
-        AnsiConsole.Console.Profile.Encoding = System.Text.Encoding.UTF8;
-        AnsiConsole.Profile.Encoding = System.Text.Encoding.UTF8;
+        AnsiConsole.Console.Profile.Encoding = Console.Out.Encoding;
+        AnsiConsole.Profile.Encoding = Console.Out.Encoding;
 
         explorerUi.OnKeyPressed += OnKeyPressed;
         commandManager.OnCommandExecuted += CommandManager_OnCommandExecuted;
@@ -170,7 +169,7 @@ public partial class Explorer : IExplorer
             Directory.SetCurrentDirectory(WorkingDirectory.FullName);
             Environment.CurrentDirectory = WorkingDirectory.FullName;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             WorkingDirectory = oldWorkingDirectory;
 
@@ -264,9 +263,11 @@ public partial class Explorer : IExplorer
         {
             return;
         }
+
         isDisposed = true;
 
         Console.Clear();
+        Console.Out.Flush();
         Console.Out.Write(WorkingDirectory.FullName);
         semaphoreSlim.Release();
         semaphoreSlim.Dispose();
