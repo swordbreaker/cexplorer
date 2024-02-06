@@ -248,7 +248,14 @@ public partial class Explorer : IExplorer
             case ConsoleKey.G:
                 await explorerUi.StopAsync();
                 AnsiConsole.Clear();
-                AnsiConsole.Ask<string>("Goto: ");
+                var promt = AnsiConsole.Ask<string>("Goto: ");
+                var path = Environment.ExpandEnvironmentVariables(promt);
+                if (Directory.Exists(path))
+                {
+                    EnterDirectory(new DirectoryInfo(path));
+                }
+
+                explorerUi.Render();
                 break;
             default:
                 break;

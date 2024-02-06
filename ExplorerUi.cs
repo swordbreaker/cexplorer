@@ -87,6 +87,7 @@ public class ExplorerUi : IExplorerUi
     {
         isActive = false;
         await renderLock.WaitAsync();
+        renderLock.Release();
     }
 
     public void MarkAsDirty()
