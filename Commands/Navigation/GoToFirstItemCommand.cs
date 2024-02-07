@@ -1,9 +1,8 @@
-﻿namespace console_explorer.Commands;
+﻿namespace console_explorer.Commands.Navigation;
 
-public class GoToFirstItemCommand : IUndoableCommand
+public class GoToFirstItemCommand : ICommand
 {
     private readonly IExplorer explorer;
-    private int oldIndex;
 
     public string Name => "Go to first item";
 
@@ -14,14 +13,7 @@ public class GoToFirstItemCommand : IUndoableCommand
 
     public Task ExecuteAsync()
     {
-        oldIndex = explorer.FileIndex;
         explorer.FileIndex = 0;
-        return Task.CompletedTask;
-    }
-
-    public Task UndoAsync()
-    {
-        explorer.FileIndex = oldIndex;
         return Task.CompletedTask;
     }
 }

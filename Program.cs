@@ -1,10 +1,17 @@
 ﻿using console_explorer.Commands;
+using console_explorer.Commands.Clipboard;
+using console_explorer.Commands.FileOperations;
+using console_explorer.Commands.Navigation;
+using console_explorer.Commands.UserInterface;
 using console_explorer.Factories;
+using console_explorer.Loggin;
 using console_explorer.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+// Services
 builder.Services.AddSingleton<IExplorer, Explorer>();
 builder.Services.AddSingleton<IExplorerUi, ExplorerUi>();
 builder.Services.AddSingleton<IItemsRendererFactory, ItemsRendererFactory>();
@@ -15,6 +22,10 @@ builder.Services.AddSingleton<ICommandFactory, CommandFactory>();
 builder.Services.AddSingleton<IDeletionService, DeletionService>();
 builder.Services.AddSingleton<IMoveCommandFactory, MoveCommandFactory>();
 builder.Services.AddSingleton<ICliboardService, ClipboadService>();
+builder.Services.AddSingleton<ICreateItemService, CreateItemService>();
+
+// Logger
+builder.Logging.AddCustomLogger();
 
 // Commands
 builder.Services.AddTransient<StartRenameCommand>();
@@ -38,6 +49,9 @@ builder.Services.AddTransient<TogglePreviewPanelSizeCommand>();
 builder.Services.AddTransient<ToggleSortOrderCommand>();
 builder.Services.AddTransient<MoveCommand>();
 builder.Services.AddTransient<OpenExplorerCommand>();
+builder.Services.AddTransient<OpenTerminalCommand>();
+builder.Services.AddTransient<CreateItemCommand>();
+builder.Services.AddTransient<StartCreateItemCommand>();
 
 using IHost host = builder.Build();
 

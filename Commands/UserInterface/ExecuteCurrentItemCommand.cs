@@ -1,4 +1,4 @@
-﻿namespace console_explorer.Commands;
+﻿namespace console_explorer.Commands.UserInterface;
 
 public class ExecuteCurrentItemCommand : IUndoableCommand
 {
@@ -21,7 +21,7 @@ public class ExecuteCurrentItemCommand : IUndoableCommand
 
     public Task UndoAsync()
     {
-        if(oldDirectory != null)
+        if (oldDirectory != null)
         {
             explorer.EnterDirectory(oldDirectory);
         }

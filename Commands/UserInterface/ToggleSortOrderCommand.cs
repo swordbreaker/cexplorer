@@ -1,4 +1,4 @@
-﻿namespace console_explorer.Commands
+﻿namespace console_explorer.Commands.UserInterface
 {
     public class ToggleSortOrderCommand : IUndoableCommand
     {
@@ -32,7 +32,7 @@
         }
 
         public Task UndoAsync()
-        { 
+        {
             explorer.SortOrder = oldSortOder;
             return Task.CompletedTask;
         }

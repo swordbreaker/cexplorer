@@ -1,5 +1,8 @@
 ﻿using console_explorer.Commands;
+using console_explorer.Commands.FileOperations;
+using console_explorer.Commands.Navigation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace console_explorer.Factories
 {
@@ -24,5 +27,11 @@ namespace console_explorer.Factories
 
         public ICommand CreateDeleteCommand(FileSystemInfo itemToDelete) =>
             new DeleteCommand(itemToDelete);
+
+        public ICommand CreateCreateItemCommand(string name) =>
+            new CreateItemCommand(
+                name,
+                serviceProvider.GetRequiredService<IExplorer>(),
+                serviceProvider.GetRequiredService<ILogger<CreateItemCommand>>());
     }
 }

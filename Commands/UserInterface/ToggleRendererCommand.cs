@@ -1,4 +1,4 @@
-﻿namespace console_explorer.Commands
+﻿namespace console_explorer.Commands.UserInterface
 {
     internal record ToggleRendererCommand(IExplorer Explorer) : ICommand
     {

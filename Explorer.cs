@@ -1,5 +1,6 @@
 ﻿using console_explorer;
 using console_explorer.Commands;
+using console_explorer.Commands.FileOperations;
 using console_explorer.Services;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
@@ -16,6 +17,7 @@ public partial class Explorer : IExplorer
     private readonly SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
     private readonly ILogger<Explorer> logger;
 
+    private FileSystemWatcher? fileSystemWatcher;
     private IItemsRenderer itemsRenderer;
     private bool isDisposed = false;
     private int index = 0;
@@ -31,6 +33,8 @@ public partial class Explorer : IExplorer
             UpdateUi();
         }
     }
+
+    public bool IsDisabled { get; set; } = false;
 
     public DirectoryInfo WorkingDirectory { get; private set; }
     public FileSystemInfo SelectedItem { get; private set; }
@@ -89,7 +93,6 @@ public partial class Explorer : IExplorer
         ILogger<Explorer> logger)
     {
         this.explorerUi = explorerUi;
-        this.WorkingDirectory = new DirectoryInfo(Environment.CurrentDirectory);
         this.preview = explorerPreview;
         this.commandManager = commandManager;
         this.renameService = renameService;
@@ -97,14 +100,18 @@ public partial class Explorer : IExplorer
         this.logger = logger;
         this.filterService = new FilterService(explorerUi, this);
         this.itemsRenderer = new TreeRenderer(explorerUi, 10);
+        
+        var currentDirectory = new DirectoryInfo(Environment.CurrentDirectory);
+        this.SelectedItem = currentDirectory;
 
-        SelectedItem = WorkingDirectory;
 
         AnsiConsole.Console.Profile.Encoding = Console.Out.Encoding;
         AnsiConsole.Profile.Encoding = Console.Out.Encoding;
 
         explorerUi.OnKeyPressed += OnKeyPressed;
         commandManager.OnCommandExecuted += CommandManager_OnCommandExecuted;
+
+        EnterDirectory(currentDirectory);
     }
 
     private void CommandManager_OnCommandExecuted(ICommand command)
@@ -167,7 +174,27 @@ public partial class Explorer : IExplorer
             index = 0;
             Filter = string.Empty;
             Directory.SetCurrentDirectory(WorkingDirectory.FullName);
-            Environment.CurrentDirectory = WorkingDirectory.FullName;
+
+            if(fileSystemWatcher != null)
+            {
+                fileSystemWatcher.Created -= FileSystemWatcher_Changed;
+                fileSystemWatcher.Deleted -= FileSystemWatcher_Changed;
+                fileSystemWatcher.Renamed -= FileSystemWatcher_Changed;
+                fileSystemWatcher.Changed -= FileSystemWatcher_Changed;
+                fileSystemWatcher.Dispose();
+            }
+
+            fileSystemWatcher = new FileSystemWatcher
+            {
+                Filter = "*",
+                Path = WorkingDirectory.FullName,
+                EnableRaisingEvents = true,
+            };
+
+            fileSystemWatcher.Created += FileSystemWatcher_Changed;
+            fileSystemWatcher.Deleted += FileSystemWatcher_Changed;
+            fileSystemWatcher.Renamed += FileSystemWatcher_Changed;
+            fileSystemWatcher.Changed += FileSystemWatcher_Changed;
         }
         catch (Exception e)
         {
@@ -176,6 +203,11 @@ public partial class Explorer : IExplorer
             logger.LogError(e, "Error occurred while entering directory");
             explorerUi.UpdateStatus(new Markup($"[red bold]Error entering directory {directory.Name}: {e.Message}[/]"));
         }
+    }
+
+    private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e)
+    {
+        UpdateUi();
     }
 
     public void StartRenameCurrent()
@@ -236,7 +268,7 @@ public partial class Explorer : IExplorer
 
     private async void OnKeyPressed(ConsoleKeyInfo key)
     {
-        if (renameService.IsRenaming || filterService.IsFiltering)
+        if (renameService.IsRenaming || filterService.IsFiltering || IsDisabled)
         {
             return;
         }

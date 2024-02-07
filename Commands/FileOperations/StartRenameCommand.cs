@@ -1,4 +1,4 @@
-﻿namespace console_explorer.Commands;
+﻿namespace console_explorer.Commands.FileOperations;
 
 public record StartRenameCommand(IExplorer explorer) : ICommand
 {

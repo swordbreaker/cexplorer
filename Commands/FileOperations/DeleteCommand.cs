@@ -1,4 +1,4 @@
-﻿namespace console_explorer.Commands;
+﻿namespace console_explorer.Commands.FileOperations;
 
 public record DeleteCommand : IUndoableCommand
 {
@@ -7,7 +7,17 @@ public record DeleteCommand : IUndoableCommand
     private string oldFilePath;
 
     private static Lazy<DirectoryInfo> TempDirectory =
-        new(() => Directory.CreateTempSubdirectory("console-explorer"));
+        new(() =>
+        {
+            var dir = Directory.CreateTempSubdirectory("console-explorer");
+
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+
+            return dir;
+        });
 
     public string Name => "Delete";
 
@@ -27,7 +37,9 @@ public record DeleteCommand : IUndoableCommand
         else if (file is FileInfo f)
         {
             oldFilePath = f.FullName;
-            f.MoveTo(TempDirectory.Value.FullName);
+            var newFilePath = Path.Combine(TempDirectory.Value.FullName, f.Name);
+
+            f.MoveTo(newFilePath, true);
             removedItem = f;
         }
         return Task.CompletedTask;

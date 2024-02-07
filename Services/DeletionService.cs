@@ -51,8 +51,8 @@ namespace console_explorer.Services
         {
             if (itemToDelete is not null)
             {
-                commandManager.Execute(commandFactory.CreateDeleteCommand(itemToDelete));
                 explorerUi.UpdateStatus(new Markup($"[green]File deleted {itemToDelete.Name}.[/]"));
+                commandManager.Execute(commandFactory.CreateDeleteCommand(itemToDelete));
                 explorerUi.OnKeyPressed -= OnKeyPressed;
             }
         }

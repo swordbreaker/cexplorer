@@ -1,4 +1,4 @@
-﻿namespace console_explorer.Commands
+﻿namespace console_explorer.Commands.UserInterface
 {
     public class OpenExplorerCommand(IExplorer Explorer) : ICommand
     {

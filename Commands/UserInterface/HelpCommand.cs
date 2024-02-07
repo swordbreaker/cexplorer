@@ -1,7 +1,7 @@
 ﻿using console_explorer.Services;
 using Spectre.Console;
 
-namespace console_explorer.Commands;
+namespace console_explorer.Commands.UserInterface;
 
 public record HelpCommand(ICommandManager CommandManager, IExplorerUi ExplorerUi) : ICommand
 {

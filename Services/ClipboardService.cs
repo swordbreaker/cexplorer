@@ -15,6 +15,7 @@ public class ClipboadService : ICliboardService
     public ClipboadService(IMoveCommandFactory moveCommandFactory, ICommandManager commandManager)
     {
         this.moveCommandFactory = moveCommandFactory;
+        this.commandManager = commandManager;
     }
 
     public async Task RegisterForCut(FileSystemInfo selectedItem)
@@ -35,6 +36,15 @@ public class ClipboadService : ICliboardService
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             // TODO Handle other platforms
+            return (Array.Empty<string>(), Array.Empty<string>());
+        }
+
+        if(cutItem is not null)
+        {
+            var destination = Path.Combine(workingDirectory.FullName, cutItem.Name);
+            var moveCommand = moveCommandFactory.Create(cutItem, destination);
+            commandManager.Execute(moveCommand);
+            cutItem = null;
             return (Array.Empty<string>(), Array.Empty<string>());
         }
 
@@ -97,6 +107,7 @@ public class ClipboadService : ICliboardService
             return;
         }
 
+        cutItem = null;
         using var handle = await ClipboardGdi.OpenAsync();
 
         if (selectedItem.Extension is ".png" or ".jpg" or ".jpeg" or ".bmp" or ".gif")

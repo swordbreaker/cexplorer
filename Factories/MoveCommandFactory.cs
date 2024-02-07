@@ -1,4 +1,5 @@
 ﻿using console_explorer.Commands;
+using console_explorer.Commands.FileOperations;
 using Microsoft.Extensions.Logging;
 
 namespace console_explorer.Factories;

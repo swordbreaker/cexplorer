@@ -1,6 +1,6 @@
-﻿namespace console_explorer.Commands
+﻿namespace console_explorer.Commands.UserInterface
 {
-    public class TogglePreviewPanelSizeCommand : IUndoableCommand   
+    public class TogglePreviewPanelSizeCommand : IUndoableCommand
     {
         private readonly IExplorerUi explorerUi;
         public string Name => "Toggle preview panel size";
@@ -12,19 +12,19 @@
 
         public Task ExecuteAsync()
         {
-            if(explorerUi.RightRatio == 3)
+            if (explorerUi.RightRatio == 3)
             {
                 explorerUi.UpdateRightRatio(2);
             }
-            else if(explorerUi.RightRatio == 2)
+            else if (explorerUi.RightRatio == 2)
             {
                 explorerUi.UpdateRightRatio(1);
             }
-            else if(explorerUi.RightRatio == 1)
+            else if (explorerUi.RightRatio == 1)
             {
                 explorerUi.UpdateRightRatio(0);
             }
-            else if(explorerUi.RightRatio == 0)
+            else if (explorerUi.RightRatio == 0)
             {
                 explorerUi.UpdateRightRatio(3);
             }
@@ -33,19 +33,19 @@
 
         public Task UndoAsync()
         {
-            if(explorerUi.RightRatio == 3)
+            if (explorerUi.RightRatio == 3)
             {
                 explorerUi.UpdateRightRatio(0);
             }
-            else if(explorerUi.RightRatio == 2)
+            else if (explorerUi.RightRatio == 2)
             {
                 explorerUi.UpdateRightRatio(3);
             }
-            else if(explorerUi.RightRatio == 1)
+            else if (explorerUi.RightRatio == 1)
             {
                 explorerUi.UpdateRightRatio(2);
             }
-            else if(explorerUi.RightRatio == 0)
+            else if (explorerUi.RightRatio == 0)
             {
                 explorerUi.UpdateRightRatio(1);
             }

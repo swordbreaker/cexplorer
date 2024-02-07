@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 
-namespace console_explorer.Commands
+namespace console_explorer.Commands.UserInterface
 {
     public class CalculateSizeCommand : ICommand
     {
@@ -50,12 +50,12 @@ namespace console_explorer.Commands
                         explorerUi.UpdateStatus(new Markup($"[green bold]Size: {result.ToDisplayString()}[/]"));
                     });
                 }
-                else if(explorer.SelectedItem is FileInfo f)
+                else if (explorer.SelectedItem is FileInfo f)
                 {
                     explorerUi.UpdateStatus(new Markup($"[green bold]Size: {new Bytes(f.Length).ToDisplayString()}[/]"));
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 logger.LogError(e, $"Error occurred while calculating folder size");
                 explorerUi.UpdateStatus(new Markup($"[bold red] {e.Message} [/]"));

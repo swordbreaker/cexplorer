@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace console_explorer.Commands;
+namespace console_explorer.Commands.Clipboard;
 
 public record ClipboardCopyCommand(IExplorer Explorer) : ICommand
 {

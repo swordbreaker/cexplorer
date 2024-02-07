@@ -1,4 +1,5 @@
 ﻿using console_explorer.Commands;
+using console_explorer.Commands.FileOperations;
 using console_explorer.UiElements;
 using Spectre.Console;
 

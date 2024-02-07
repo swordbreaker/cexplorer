@@ -1,6 +1,11 @@
 ﻿using console_explorer.Commands;
+using console_explorer.Commands.Clipboard;
+using console_explorer.Commands.FileOperations;
+using console_explorer.Commands.Navigation;
+using console_explorer.Commands.UserInterface;
 using console_explorer.ExtensionMethods;
 using console_explorer.Factories;
+using Microsoft.Extensions.Logging;
 
 namespace console_explorer.Services;
 
@@ -12,8 +17,9 @@ public class CommandManager : ICommandManager
     private readonly Dictionary<char, Func<ICommand>> charCommands;
     private readonly ICommandFactory commandFactory;
     public event Action<ICommand>? OnCommandExecuted;
+    private ILogger<CommandManager> logger;
 
-    public CommandManager(ICommandFactory commandFactory)
+    public CommandManager(ICommandFactory commandFactory, ILogger<CommandManager> logger)
     {
         this.commandFactory = commandFactory;
 
@@ -57,9 +63,12 @@ public class CommandManager : ICommandManager
             ['c'] = commandFactory.Create<ClipboardCopyCommand>,
             ['s'] = commandFactory.Create<ToggleSortOrderCommand>,
             ['e'] = commandFactory.Create<OpenExplorerCommand>,
+            ['t'] = commandFactory.Create<OpenTerminalCommand>,
+            ['n'] = commandFactory.Create<StartCreateItemCommand>,
             // TODO Move command
             // TODO Cut command
         };
+        this.logger = logger;
     }
 
     public IEnumerable<(string key, string commandName)> GetCommandHelp =>
@@ -88,36 +97,57 @@ public class CommandManager : ICommandManager
 
     public void Execute(ICommand command)
     {
-        command.ExecuteAsync();
-        if (command is IUndoableCommand undoableCommand)
+        try
         {
-            undoStack.Push(undoableCommand);
+            command.ExecuteAsync();
+            if (command is IUndoableCommand undoableCommand)
+            {
+                undoStack.Push(undoableCommand);
+            }
+            redoStack.Clear();
+            OnCommandExecuted?.Invoke(command);
         }
-        redoStack.Clear();
-        OnCommandExecuted?.Invoke(command);
+        catch(Exception e)
+        {
+            this.logger.LogError(e, e.Message);
+        }
     }
 
     public void Undo()
     {
-        if (undoStack.Count == 0)
+        try
         {
-            return;
-        }
+            if (undoStack.Count == 0)
+            {
+                return;
+            }
 
-        var command = undoStack.Pop();
-        command.UndoAsync();
-        redoStack.Push(command);
+            var command = undoStack.Pop();
+            command.UndoAsync();
+            redoStack.Push(command);
+        }
+        catch(Exception e)
+        {
+            this.logger.LogError(e, e.Message);
+        }
     }
 
     public void Redo()
     {
-        if (redoStack.Count == 0)
+        try
         {
-            return;
-        }
+            if (redoStack.Count == 0)
+            {
+                return;
+            }
 
-        var command = redoStack.Pop();
-        command.ExecuteAsync();
-        undoStack.Push(command);
+            var command = redoStack.Pop();
+            command.ExecuteAsync();
+            undoStack.Push(command);
+        }
+        catch(Exception e)
+        {
+            this.logger.LogError(e, e.Message);
+        }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Spectre.Console;
 
-namespace console_explorer.Commands;
+namespace console_explorer.Commands.FileOperations;
 
 public class MoveCommand : IUndoableCommand
 {

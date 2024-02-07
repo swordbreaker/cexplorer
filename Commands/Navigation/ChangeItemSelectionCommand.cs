@@ -1,11 +1,9 @@
-﻿namespace console_explorer.Commands;
+﻿namespace console_explorer.Commands.Navigation;
 
-public class ChangeItemSelectionCommand : IUndoableCommand
+public class ChangeItemSelectionCommand : ICommand
 {
     private readonly IExplorer explorer;
     private readonly int indexChange;
-    private int oldIndex;
-
     public string Name => indexChange < 0
         ? "Select previous item"
         : "Select next item";
@@ -16,17 +14,9 @@ public class ChangeItemSelectionCommand : IUndoableCommand
         this.indexChange = indexChange;
     }
 
-
     public Task ExecuteAsync()
     {
-        oldIndex = explorer.FileIndex;
         explorer.FileIndex += indexChange;
-        return Task.CompletedTask;
-    }
-
-    public Task UndoAsync()
-    {
-        explorer.FileIndex = oldIndex;
         return Task.CompletedTask;
     }
 }

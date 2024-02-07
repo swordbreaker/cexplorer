@@ -10,6 +10,7 @@ public interface IExplorer : IDisposable
     IEnumerable<FileSystemInfo> Items { get; }
     IEnumerable<FileSystemInfo> AllItems { get; }
     SortOrder SortOrder { get; set; }
+    bool IsDisabled { get; set; }
 
     void EnterDirectory(DirectoryInfo directory);
     void ExecuteSelectedItem();

@@ -24,6 +24,7 @@ namespace console_explorer.Services
             input.OnCanceled += OnCanceled;
             input.OnSubmitted += OnSubmitted;
             input.OnTab += OnTab;
+            explorer.Filter = "";
 
             var gird = new Grid();
             gird.AddColumns(2);
@@ -71,11 +72,6 @@ namespace console_explorer.Services
                 input.Dispose();
                 IsFiltering = false;
             }
-        }
-
-        private void Input_OnSubmitted(string obj)
-        {
-            throw new NotImplementedException();
         }
     }
 }

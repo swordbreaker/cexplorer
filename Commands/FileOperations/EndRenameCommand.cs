@@ -1,4 +1,4 @@
-﻿namespace console_explorer.Commands;
+﻿namespace console_explorer.Commands.FileOperations;
 
 public class EndRenameCommand : IUndoableCommand
 {
@@ -16,7 +16,7 @@ public class EndRenameCommand : IUndoableCommand
 
     public Task ExecuteAsync()
     {
-        this.oldName = selectedItem.FullName;
+        oldName = selectedItem.FullName;
         if (selectedItem is DirectoryInfo d)
         {
             d.MoveTo(Path.Combine(d.Parent!.FullName, newName));
