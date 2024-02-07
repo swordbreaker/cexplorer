@@ -8,6 +8,7 @@ using console_explorer.Loggin;
 using console_explorer.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -25,6 +26,8 @@ builder.Services.AddSingleton<ICliboardService, ClipboadService>();
 builder.Services.AddSingleton<ICreateItemService, CreateItemService>();
 
 // Logger
+builder.Logging.AddDebug();
+builder.Logging.AddConsole();
 builder.Logging.AddCustomLogger();
 
 // Commands
@@ -52,6 +55,7 @@ builder.Services.AddTransient<OpenExplorerCommand>();
 builder.Services.AddTransient<OpenTerminalCommand>();
 builder.Services.AddTransient<CreateItemCommand>();
 builder.Services.AddTransient<StartCreateItemCommand>();
+builder.Services.AddTransient<RunCommand>();
 
 using IHost host = builder.Build();
 

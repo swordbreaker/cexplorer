@@ -7,10 +7,9 @@ public interface ICommandManager
     IEnumerable<(string key, string commandName)> GetCommandHelp { get; }
 
     event Action<ICommand>? OnCommandExecuted;
-
-    void Execute(ConsoleKeyInfo key);
-    void Execute(ICommand command);
-    void Execute<T>() where T : ICommand;
-    void Redo();
-    void Undo();
+    Task Execute(ConsoleKeyInfo key);
+    Task Execute(ICommand command);
+    Task Execute<T>() where T : ICommand;
+    Task Redo();
+    Task Undo();
 }

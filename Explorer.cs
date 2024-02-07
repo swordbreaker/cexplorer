@@ -273,7 +273,7 @@ public partial class Explorer : IExplorer
             return;
         }
 
-        commandManager.Execute(key);
+        await commandManager.Execute(key);
 
         switch (key.Key)
         {
@@ -294,6 +294,16 @@ public partial class Explorer : IExplorer
         }
 
         UpdateUi();
+    }
+
+    public async Task<string> Ask(string prefix = "")
+    {
+        await explorerUi.StopAsync();
+        AnsiConsole.Clear();
+        var ask = AnsiConsole.Ask<string>(prefix);
+
+        explorerUi.Render();
+        return ask;
     }
 
     public void Dispose()

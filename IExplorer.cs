@@ -20,4 +20,5 @@ public interface IExplorer : IDisposable
     void StartFiltering();
     void StartRenameCurrent();
     void ToggleRenderer();
+    Task<string> Ask(string prefix = "");
 }

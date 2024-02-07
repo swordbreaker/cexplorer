@@ -9,67 +9,44 @@ using Microsoft.Extensions.Logging;
 
 namespace console_explorer.Services;
 
-public class CommandManager : ICommandManager
+public class CommandManager(ICommandFactory commandFactory, ILogger<CommandManager> logger)
+    : ICommandManager
 {
     private readonly Stack<IUndoableCommand> undoStack = new();
     private readonly Stack<IUndoableCommand> redoStack = new();
-    private readonly Dictionary<ConsoleKeyInfo, Func<ICommand>> commands;
-    private readonly Dictionary<char, Func<ICommand>> charCommands;
-    private readonly ICommandFactory commandFactory;
-    public event Action<ICommand>? OnCommandExecuted;
-    private ILogger<CommandManager> logger;
-
-    public CommandManager(ICommandFactory commandFactory, ILogger<CommandManager> logger)
+    private readonly Dictionary<ConsoleKeyInfo, Func<ICommand>> commands = new()
     {
-        this.commandFactory = commandFactory;
+        [new ConsoleKeyInfo('\0', ConsoleKey.UpArrow, false, false, false)] = commandFactory.CreateSelectPreviousItemCommand,
+        [new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false)] = commandFactory.CreateSelectNextItemCommand,
+        [new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false)] = commandFactory.Create<ExecuteCurrentItemCommand>,
+        [new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false)] = commandFactory.Create<GoBackADirectoryCommand>,
+        [new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, false)] = commandFactory.Create<GoToFirstItemCommand>,
+        [new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, false)] = commandFactory.Create<GoToLastItemCommand>,
+        [new ConsoleKeyInfo('\u001a', ConsoleKey.Z, false, false, true)] = commandFactory.Create<UndoCommand>,
+        [new ConsoleKeyInfo('\u0019', ConsoleKey.Y, false, false, true)] = commandFactory.Create<RedoCommand>,
+        [new ConsoleKeyInfo('\0', ConsoleKey.Delete, false, false, false)] = commandFactory.Create<RequestDeletionCommand>,
+        [new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false)] = commandFactory.Create<ToggleRendererCommand>,
+    };
+    private readonly Dictionary<char, Func<ICommand>> charCommands = new()
+    {
+        ['q'] = commandFactory.Create<QuitCommand>,
+        ['c'] = commandFactory.Create<ClipboardCopyCommand>,
+        ['p'] = commandFactory.Create<ClipboardPasteCommand>,
+        ['x'] = commandFactory.Create<ClipboardCutCommand>,
+        ['r'] = commandFactory.Create<StartRenameCommand>,
+        ['l'] = commandFactory.Create<CalculateSizeCommand>,
+        ['/'] = commandFactory.Create<StartFilterItemsCommand>,
+        ['+'] = commandFactory.Create<TogglePreviewPanelSizeCommand>,
+        ['?'] = commandFactory.Create<HelpCommand>,
+        ['v'] = commandFactory.Create<ClipboardPasteCommand>,
+        ['s'] = commandFactory.Create<ToggleSortOrderCommand>,
+        ['e'] = commandFactory.Create<OpenExplorerCommand>,
+        ['t'] = commandFactory.Create<OpenTerminalCommand>,
+        ['n'] = commandFactory.Create<StartCreateItemCommand>,
+        ['R'] = commandFactory.Create<RunCommand>,
+    };
 
-        commands = new()
-        {
-            [new ConsoleKeyInfo('\0', ConsoleKey.UpArrow, false, false, false)] = commandFactory.CreateSelectPreviousItemCommand,
-            [new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false)] = commandFactory.CreateSelectNextItemCommand,
-            [new ConsoleKeyInfo('\r', ConsoleKey.Enter, false, false, false)] = commandFactory.Create<ExecuteCurrentItemCommand>,
-            [new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false)] = commandFactory.Create<GoBackADirectoryCommand>,
-            [new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, false)] = commandFactory.Create<GoToFirstItemCommand>,
-            [new ConsoleKeyInfo('\0', ConsoleKey.End, false, false, false)] = commandFactory.Create<GoToLastItemCommand>,
-            [new ConsoleKeyInfo('\u001a', ConsoleKey.Z, false, false, true)] = commandFactory.Create<UndoCommand>,
-            [new ConsoleKeyInfo('\u0019', ConsoleKey.Y, false, false, true)] = commandFactory.Create<RedoCommand>,
-            [new ConsoleKeyInfo('\0', ConsoleKey.Delete, false, false, false)] = commandFactory.Create<RequestDeletionCommand>,
-            [new ConsoleKeyInfo('\t', ConsoleKey.Tab, false, false, false)] = commandFactory.Create<ToggleRendererCommand>,
-            //[new ConsoleKeyInfo('?', , false, false, false)] = () => new HelpCommand(explorer),
-            //[new ConsoleKeyInfo('m', ConsoleKey.M, false, false, false)] = new MoveCommand(Explorer),
-            //[new ConsoleKeyInfo('u', ConsoleKey.U, false, false, false)] = new UndoCommand(Explorer),
-            //[new ConsoleKeyInfo('z', ConsoleKey.Z, false, false, false)] = new RedoCommand(Explorer),
-            //[new ConsoleKeyInfo('h', ConsoleKey.H, false, false, false)] = new HelpCommand(Explorer),
-            //[new ConsoleKeyInfo('s', ConsoleKey.S, false, false, false)] = new SearchCommand(Explorer),
-            //[new ConsoleKeyInfo('e', ConsoleKey.E, false, false, false)] = new EditCommand(Explorer),
-            //[new ConsoleKeyInfo('t', ConsoleKey.T, false, false, false)] = new TouchCommand(Explorer),
-            //[new ConsoleKeyInfo('f', ConsoleKey.F, false, false, false)] = new FindCommand(Explorer),
-            //[new ConsoleKeyInfo('a', ConsoleKey.A, false, false, false)] = new AboutCommand(Explorer),
-            //[new ConsoleKeyInfo('o', ConsoleKey.O, false, false, false)] = new OpenCommand(Explorer),
-        };
-
-        charCommands = new()
-        {
-            ['q'] = commandFactory.Create<QuitCommand>,
-            ['c'] = commandFactory.Create<ClipboardCopyCommand>,
-            ['p'] = commandFactory.Create<ClipboardPasteCommand>,
-            ['x'] = commandFactory.Create<ClipboardCutCommand>,
-            ['r'] = commandFactory.Create<StartRenameCommand>,
-            ['l'] = commandFactory.Create<CalculateSizeCommand>,
-            ['/'] = commandFactory.Create<StartFilterItemsCommand>,
-            ['+'] = commandFactory.Create<TogglePreviewPanelSizeCommand>,
-            ['?'] = commandFactory.Create<HelpCommand>,
-            ['v'] = commandFactory.Create<ClipboardPasteCommand>,
-            ['c'] = commandFactory.Create<ClipboardCopyCommand>,
-            ['s'] = commandFactory.Create<ToggleSortOrderCommand>,
-            ['e'] = commandFactory.Create<OpenExplorerCommand>,
-            ['t'] = commandFactory.Create<OpenTerminalCommand>,
-            ['n'] = commandFactory.Create<StartCreateItemCommand>,
-            // TODO Move command
-            // TODO Cut command
-        };
-        this.logger = logger;
-    }
+    public event Action<ICommand>? OnCommandExecuted;
 
     public IEnumerable<(string key, string commandName)> GetCommandHelp =>
         commands
@@ -77,29 +54,35 @@ public class CommandManager : ICommandManager
             .Concat(charCommands
                 .Select(x => (x.Key.ToString(), x.Value().Name)));
 
-    public void Execute(ConsoleKeyInfo key)
+    public async Task Execute(ConsoleKeyInfo key)
     {
         if (commands.TryGetValue(key, out var command))
         {
-            Execute(command());
-            return;
+            await Execute(command());
         }
-
-        if(charCommands.TryGetValue(key.KeyChar, out var charCommand))
+        else if (charCommands.TryGetValue(key.KeyChar, out var charCommand))
         {
-            Execute(charCommand());
-            return;
+            await Execute(charCommand());
         }
     }
 
-    public void Execute<T>() where T : ICommand =>
-        Execute(commandFactory.Create<T>());
-
-    public void Execute(ICommand command)
+    public async Task Execute<T>() where T : ICommand
     {
         try
         {
-            command.ExecuteAsync();
+            await Execute(commandFactory.Create<T>());
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, e.Message);
+        }
+    }
+
+    public async Task Execute(ICommand command)
+    {
+        try
+        {
+            await command.ExecuteAsync();
             if (command is IUndoableCommand undoableCommand)
             {
                 undoStack.Push(undoableCommand);
@@ -109,11 +92,11 @@ public class CommandManager : ICommandManager
         }
         catch(Exception e)
         {
-            this.logger.LogError(e, e.Message);
+            logger.LogError(e, e.Message);
         }
     }
 
-    public void Undo()
+    public async Task Undo()
     {
         try
         {
@@ -123,16 +106,16 @@ public class CommandManager : ICommandManager
             }
 
             var command = undoStack.Pop();
-            command.UndoAsync();
+            await command.UndoAsync();
             redoStack.Push(command);
         }
         catch(Exception e)
         {
-            this.logger.LogError(e, e.Message);
+            logger.LogError(e, e.Message);
         }
     }
 
-    public void Redo()
+    public async Task Redo()
     {
         try
         {
@@ -142,12 +125,12 @@ public class CommandManager : ICommandManager
             }
 
             var command = redoStack.Pop();
-            command.ExecuteAsync();
+            await command.ExecuteAsync();
             undoStack.Push(command);
         }
         catch(Exception e)
         {
-            this.logger.LogError(e, e.Message);
+            logger.LogError(e, e.Message);
         }
     }
 }
